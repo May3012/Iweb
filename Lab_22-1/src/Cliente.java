@@ -50,6 +50,84 @@ public class Cliente {
 
     //metodos
 
+/*
+  public void registrarCliente(){
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ingrese el nombre del cliente: ");
+        this.setNombre(scanner.nextLine());
+
+        boolean centinela = true;
+        while(centinela){
+            System.out.print("Ingrese el dni del cliente: ");
+            String identidad = scanner.nextLine();
+            int identi = Integer.parseInt(identidad);
+            this.setDni(identi);
+
+            if(identidad.length() == 8){
+                this.setDni(identi);
+                centinela = false;
+                break;
+            }else{
+                System.out.println("DNI invalido");
+            }
+        }
+        
+        /*
+        
+        public void registrarCliente(ArrayList<Cliente> clientes) {
+    Scanner scanner = new Scanner(System.in);
+    System.out.print("Ingrese el nombre del cliente: ");
+    this.setNombre(scanner.nextLine());
+
+    boolean centinela = true;
+    while (centinela) {
+        System.out.print("Ingrese el DNI del cliente (8 caracteres numéricos): ");
+        String identidad = scanner.nextLine();
+
+        if (identidad.length() == 8 && esNumero(identidad)) {
+            int dni = Integer.parseInt(identidad);
+            
+            // Verificar si el DNI ya existe en la lista de clientes
+            if (!existeDNI(clientes, dni)) {
+                this.setDni(dni);
+                centinela = false;
+            } else {
+                System.out.println("El DNI ya está registrado, por favor, ingrese otro.");
+            }
+        } else {
+            System.out.println("DNI inválido. Debe contener exactamente 8 caracteres numéricos.");
+        }
+    }
+}
+
+// Método para verificar si un DNI ya existe en la lista de clientes
+private boolean existeDNI(ArrayList<Cliente> clientes, int dni) {
+    for (Cliente cliente : clientes) {
+        if (cliente.getDni() == dni) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Método para verificar si una cadena es numérica
+private boolean esNumero(String cadena) {
+    try {
+        Integer.parseInt(cadena);
+        return true;
+    } catch (NumberFormatException e) {
+        return false;
+    }
+}
+
+
+
+
+
+
+*/
+
+    
     public void registrarCliente(){
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingrese el nombre del cliente: ");
