@@ -1,0 +1,238 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Marca {
+    private String nombre;
+    private int mesesGarantia;
+
+    public Marca(String nombre, int mesesGarantia) {
+        this.nombre = nombre;
+        this.mesesGarantia = mesesGarantia;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public int getMesesGarantia() {
+        return mesesGarantia;
+    }
+}
+
+class Producto {
+    private String numeroSerie;
+    private String nombre;
+    private String tipo;
+    private Marca marca;
+    private double precio;
+    private String estado;
+
+    public Producto(String numeroSerie, String nombre, String tipo, Marca marca, double precio) {
+        this.numeroSerie = numeroSerie;
+        this.nombre = nombre;
+        this.tipo = tipo;
+        this.marca = marca;
+        this.precio = precio;
+        this.estado = "Disponible";
+    }
+
+    public String getNumeroSerie() {
+        return numeroSerie;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public Marca getMarca() {
+        return marca;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void vender() {
+        estado = "Vendido";
+    }
+}
+
+class Venta {
+    private String dniComprador;
+    private String fechaVenta;
+    private Producto producto;
+
+    public Venta(String dniComprador, String fechaVenta, Producto producto) {
+        this.dniComprador = dniComprador;
+        this.fechaVenta = fechaVenta;
+        this.producto = producto;
+    }
+
+    public String getDniComprador() {
+        return dniComprador;
+    }
+
+    public String getFechaVenta() {
+        return fechaVenta;
+    }
+
+    public Producto getProducto() {
+        return producto;
+    }
+}
+
+class Tienda {
+    private List<Marca> marcas = new ArrayList<>();
+    private List<Producto> productos = new ArrayList<>();
+    private List<Venta> ventas = new ArrayList<>();
+
+    public void agregarMarca(String nombre, int mesesGarantia) {
+        Marca marca = new Marca(nombre, mesesGarantia);
+        marcas.add(marca);
+    }
+
+    public List<Marca> obtenerMarcas() {
+        return marcas;
+    }
+
+    public List<Producto> obtenerProductos() {
+        return productos;
+    }
+
+    public boolean agregarProducto(String numeroSerie, String nombre, String tipo, String marcaNombre, double precio) {
+        // Verificar si el número de serie ya existe
+        for (Producto producto : productos) {
+            if (producto.getNumeroSerie().equals(numeroSerie)) {
+                System.out.println("Este producto ya existe");
+                return false;
+            }
+        }
+
+        // Buscar la marca por nombre
+        Marca marca = null;
+        for (Marca m : marcas) {
+            if (m.getNombre().equalsIgnoreCase(marcaNombre)) {
+                marca = m;
+                break;
+            }
+        }
+
+        if (marca == null) {
+            System.out.println("La marca no existe");
+            return false;
+        }
+
+        Producto producto = new Producto(numeroSerie, nombre, tipo, marca, precio);
+        productos.add(producto);
+        return true;
+    }
+
+    public boolean venderProducto(String numeroSerie, String dniComprador, String fechaVenta) {
+        // Buscar el producto por número de serie
+        Producto producto = null;
+        for (Producto p : productos) {
+            if (p.getNumeroSerie().equals(numeroSerie)) {
+                producto = p;
+                break;
+            }
+        }
+
+        if (producto == null) {
+            System.out.println("Este producto no existe");
+            return false;
+        }
+
+        if (producto.getEstado().equalsIgnoreCase("Vendido")) {
+            System.out.println("Este producto ya está vendido");
+            return false;
+        }
+
+        Venta venta = new Venta(dniComprador, fechaVenta, producto);
+        ventas.add(venta);
+        producto.vender();
+        return true;
+    }
+}
+
+public class Principal {
+    public static void main(String[] args) {
+        Tienda tienda = new Tienda();
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("MENU");
+            System.out.println("(1) Agregar marca");
+            System.out.println("(2) Mostrar marcas");
+            System.out.println("(3) Mostrar Productos");
+            System.out.println("(4) Agregar Producto");
+            System.out.println("(5) Vender Producto");
+            System.out.println("(q) Salir");
+            System.out.print("Seleccione una opción: ");
+
+            String opcion = scanner.nextLine();
+
+            switch (opcion) {
+                case "1":
+                    System.out.print("Nombre de la marca: ");
+                    String nombreMarca = scanner.nextLine();
+                    System.out.print("Meses de garantía: ");
+                    int mesesGarantia = Integer.parseInt(scanner.nextLine());
+                    tienda.agregarMarca(nombreMarca, mesesGarantia);
+                    break;
+
+                case "2":
+                    List<Marca> marcas = tienda.obtenerMarcas();
+                    System.out.println("Marcas disponibles:");
+                    for (Marca marca : marcas) {
+                        System.out.println(marca.getNombre() + " - " + marca.getMesesGarantia() + " meses de garantía");
+                    }
+                    break;
+
+                case "3":
+                    List<Producto> productos = tienda.obtenerProductos();
+                    System.out.println("Productos registrados:");
+                    for (Producto producto : productos) {
+                        System.out.println(producto.getNombre() + " - " + producto.getTipo() + " - " + producto.getMarca().getNombre() + " - " + producto.getPrecio() + " - " + producto.getEstado());
+                    }
+                    break;
+
+                case "4":
+                    System.out.println("Seleccione un tipo de producto:");
+                    System.out.println("(1) Electrodoméstico");
+                    System.out.println("(2) Ropa");
+                    System.out.println("(3) Mueble");
+                    System.out.print("Opción: ");
+                    String tipoProducto = scanner.nextLine();
+
+                    System.out.print("Número de serie: ");
+                    String numeroSerie = scanner.nextLine();
+                    System.out.print("Nombre del producto: ");
+                    String nombreProducto = scanner.nextLine();
+                    System.out.print("Nombre de la marca: ");
+                    String nombreMarcaProducto = scanner.nextLine();
+                    System.out.print("Precio: ");
+                    double precio = Double.parseDouble(scanner.nextLine());
+
+                    boolean productoAgregado = false;
+
+                    switch (tipoProducto) {
+                        case "1":
+                            System.out.print("Voltaje: ");
+                            String voltaje = scanner.nextLine();
+                            System.out.print("Modelo: ");
+                            String modelo = scanner.nextLine();
+                            productoAgregado = tienda.agregarProducto(numeroSerie, nombreProducto, "Electrodoméstico", nombreMarcaProducto, precio);
+                            break;
+                        case "2":
+                            System.out.print("Talla: ");
+                            String talla = scanner.nextLine();
+                            productoAgregado
