@@ -1,0 +1,253 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class ArtistasController {
+    private List<Artista> artistas = new ArrayList<>();
+    private Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        ArtistasController controller = new ArtistasController();
+        controller.ejecutarMenu();
+    }
+
+    public void ejecutarMenu() {
+        int opcion;
+        do {
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++");
+            System.out.println("| Menú |");
+            System.out.println("| 1 <- Registrar Nuevo Grupo |");
+            System.out.println("| 2 <- Registrar Nueva Persona |");
+            System.out.println("| 3 <- Listar Conciertos |");
+            System.out.println("| 9 <- Salir |");
+            System.out.println("++++++++++++++++++++++++++++++++++++++++++++");
+            System.out.print("Ingrese opción: ");
+            try {
+                opcion = Integer.parseInt(scanner.nextLine());
+                switch (opcion) {
+                    case 1:
+                        registrarNuevoGrupo();
+                        break;
+                    case 2:
+                        registrarNuevaPersona();
+                        break;
+                    case 3:
+                        listarConciertos();
+                        break;
+                    case 9:
+                        System.out.println("Saliendo del programa.");
+                        break;
+                    default:
+                        System.out.println("Opción no disponible.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("DEBE INGRESAR UNA OPCIÓN NUMÉRICA VÁLIDA");
+            }
+        } while (opcion != 9);
+    }
+
+    public void registrarNuevoGrupo() {
+        System.out.println("Registrar Nuevo Grupo");
+        System.out.println("----------------------------");
+
+        try {
+            Grupo grupo = new Grupo();
+
+            System.out.print("Nombre del Grupo: ");
+            String nombreGrupo = scanner.nextLine();
+            if (nombreGrupo.length() > 25) {
+                throw new BrendaException("El nombre del grupo debe tener como máximo 25 caracteres.");
+            }
+            grupo.setNombreGrupo(nombreGrupo);
+
+            System.out.print("Costo de entrada: ");
+            try {
+                int costoEntrada = Integer.parseInt(scanner.nextLine());
+                grupo.setCostoEntrada(costoEntrada);
+            } catch (NumberFormatException e) {
+                throw new BrendaException("El costo de la entrada debe ser SOLO números.");
+            }
+
+            System.out.print("Fecha de Presentación (dd/mm/yyyy): ");
+            String fechaPresentacion = scanner.nextLine();
+            if (!validarFecha(fechaPresentacion)) {
+                throw new BrendaException("Formato de fecha no válido (dd/mm/yyyy).");
+            }
+            grupo.setFechaPresentacion(fechaPresentacion);
+
+            System.out.print("Lugar de Presentación: ");
+            grupo.setLugarPresentacion(scanner.nextLine());
+
+            System.out.print("Hora de Presentación: ");
+            grupo.setHoraPresentacion(scanner.nextLine());
+
+            // Validar que el nombre del grupo no se repita
+            for (Artista artista : artistas) {
+                if (artista instanceof Grupo) {
+                    Grupo existente = (Grupo) artista;
+                    if (existente.getNombreGrupo().equals(nombreGrupo)) {
+                        throw new BrendaException("Este nombre de grupo ya está registrado.");
+                    }
+                }
+            }
+
+            artistas.add(grupo);
+            System.out.println("GRUPO REGISTRADO");
+        } catch (BrendaException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void registrarNuevaPersona() {
+        System.out.println("Registrar Nueva Persona");
+        System.out.println("----------------------------");
+
+        try {
+            Persona persona = new Persona();
+
+            System.out.print("Nombre: ");
+            String nombre = scanner.nextLine();
+            if (nombre.length() > 20) {
+                throw new BrendaException("El nombre de la persona debe tener como máximo 20 caracteres.");
+            }
+            persona.setNombre(nombre);
+
+            System.out.print("Apellido: ");
+            String apellido = scanner.nextLine();
+            if (apellido.length() > 20) {
+                throw new BrendaException("El apellido de la persona debe tener como máximo 20 caracteres.");
+            }
+            persona.setApellido(apellido);
+
+            System.out.print("Especialidad: ");
+            String especialidad = scanner.nextLine();
+            String[] especialidadDisponible = {"Bajo", "Bateria", "Guitarra", "Voz", "Tambores"};
+            boolean especialidadValida = false;
+            for (String esp : especialidadDisponible) {
+                if (esp.equals(especialidad)) {
+                    especialidadValida = true;
+                    break;
+                }
+            }
+            if (!especialidadValida) {
+                throw new BrendaException("Especialidad no disponible.");
+            }
+            persona.setEspecialidad(especialidad);
+
+            System.out.print("Pertenece a un grupo? (si/no): ");
+            String perteneceGrupo = scanner.nextLine();
+            if ("si".equalsIgnoreCase(perteneceGrupo)) {
+                // Listar grupos disponibles
+                System.out.println("Seleccione un grupo:");
+                for (int i = 0; i < artistas.size(); i++) {
+                    Artista artista = artistas.get(i);
+                    if (artista instanceof Grupo) {
+                        System.out.println(i + " -> " + ((Grupo) artista).getNombreGrupo());
+                    }
+                }
+                try {
+                    int seleccionGrupo = Integer.parseInt(scanner.nextLine());
+                    if (seleccionGrupo >= 0 && seleccionGrupo < artistas.size()) {
+                        Artista seleccionado = artistas.get(seleccionGrupo);
+                        if (seleccionado instanceof Grupo) {
+                            Grupo grupo = (Grupo) seleccionado;
+                            grupo.getMiembros().add(persona);
+                            System.out.println("MIEMBRO AÑADIDO A " + grupo.getNombreGrupo());
+                        }
+                    } else {
+                        throw new BrendaException("Selección de grupo no válida.");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new BrendaException("Ingresar una opción numérica válida.");
+                }
+            } else {
+                System.out.print("Fecha de Presentación (dd/mm/yyyy): ");
+                String fechaPresentacion = scanner.nextLine();
+                if (!validarFecha(fechaPresentacion)) {
+                    throw new BrendaException("Formato de fecha no válido (dd/mm/yyyy).");
+                }
+                persona.setFechaPresentacion(fechaPresentacion);
+
+                System.out.print("Lugar de Presentación: ");
+                persona.setLugarPresentacion(scanner.nextLine());
+
+                System.out.print("Hora de Presentación: ");
+                persona.setHoraPresentacion(scanner.nextLine());
+
+                artistas.add(persona);
+                System.out.println("ARTISTA REGISTRADO");
+            }
+        } catch (BrendaException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void listarConciertos() {
+        System.out.println("Lista de Conciertos");
+        System.out.println("----------------------------");
+
+        for (Artista artista : artistas) {
+            System.out.println(artista.getNombreGrupo() != null ? "Grupo " + artista.getNombreGrupo() : "Persona " + artista.getNombre());
+            System.out.println("Fecha de presentación: " + artista.getFechaPresentacion());
+            System.out.println("Lugar de presentación: " + artista.getLugarPresentacion());
+            System.out.println("Hora de presentación: " + artista.getHoraPresentacion());
+            if (artista instanceof Grupo) {
+                Grupo grupo = (Grupo) artista;
+                System.out.println("Costo de entrada: " + grupo.getCostoEntrada());
+                System.out.println("Miembros:");
+                for (Persona miembro : grupo.getMiembros()) {
+                    System.out.println("- " + miembro.getNombre());
+                }
+            }
+            System.out.println("----------------------------");
+        }
+
+        System.out.print("¿Comprar Entradas? (si/no): ");
+        String comprarEntradas = scanner.nextLine();
+        if ("si".equalsIgnoreCase(comprarEntradas)) {
+            System.out.println("Seleccione un grupo:");
+            for (int i = 0; i < artistas.size(); i++) {
+                Artista artista = artistas.get(i);
+                if (artista instanceof Grupo) {
+                    System.out.println(i + " -> " + ((Grupo) artista).getNombreGrupo());
+                }
+            }
+            try {
+                int seleccionGrupo = Integer.parseInt(scanner.nextLine());
+                if (seleccionGrupo >= 0 && seleccionGrupo < artistas.size()) {
+                    Artista seleccionado = artistas.get(seleccionGrupo);
+                    if (seleccionado instanceof Grupo) {
+                        Grupo grupo = (Grupo) seleccionado;
+                        System.out.print("Cantidad de entradas: ");
+                        try {
+                            int cantidadEntradas = Integer.parseInt(scanner.nextLine());
+                            int costoTotal = cantidadEntradas * grupo.getCostoEntrada();
+                            System.out.println("Usted ha comprado " + cantidadEntradas + " entradas para el concierto de " + grupo.getNombreGrupo() +
+                                    " a realizarse el día " + grupo.getFechaPresentacion() + " a las " + grupo.getHoraPresentacion() +
+                                    " por un monto total de " + costoTotal + " soles.");
+                        } catch (NumberFormatException e) {
+                            System.out.println("Ingresar una cantidad de entradas válida.");
+                        }
+                    } else {
+                        System.out.println("Selección no válida.");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Ingresar una opción numérica válida.");
+            }
+        }
+    }
+
+    private boolean validarFecha(String fecha) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+        try {
+            sdf.parse(fecha);
+            return true;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+}
